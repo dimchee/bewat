@@ -1,7 +1,3 @@
-//! Shows how to set the solid color that is used to paint the window before the frame gets drawn.
-//!
-//! Acts as background color, since pixels that are not drawn in a frame remain unchanged.
-
 use bevy::prelude::*;
 
 fn main() {
@@ -18,17 +14,37 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..default()
     },));
 }
-fn setup(mut commands: Commands) {
+
+#[derive(Bundle)]
+struct PlayerBundle {}
+
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
     // Spawn a light and the camera
     commands.spawn(PointLightBundle {
         transform: Transform::from_translation(Vec3::new(3.0, 4.0, 3.0)),
         ..default()
     });
     commands.spawn((
-        Movement { speed: 150.0 },
+        Movement { speed: 8.0 },
         Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(100.0, 150.0, 100.0))
+            transform: Transform::from_translation(Vec3::new(12.0, 20.0, 12.0))
                 .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
+            ..default()
+        },
+    ));
+    commands.spawn((
+        Movement { speed: 8.0 },
+        PbrBundle {
+            transform: Transform::from_translation(Vec3::new(0.0, 1.0, 0.0)),
+            mesh: meshes.add(Capsule3d {
+                radius: 0.5,
+                half_length: 0.5,
+            }),
+            material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
             ..default()
         },
     ));

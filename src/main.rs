@@ -24,12 +24,15 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Spawn a light and the camera
-    commands.spawn(PointLightBundle {
-        transform: Transform::from_translation(Vec3::new(3.0, 4.0, 3.0)),
-        ..default()
-    });
     commands.spawn((
-        Movement { speed: 8.0 },
+        MoveWithWASD { speed_multiplier: 1.0 },
+        PointLightBundle {
+            transform: Transform::from_translation(Vec3::new(1.0, 3.0, 1.0)),
+            ..default()
+        },
+    ));
+    commands.spawn((
+        MoveWithWASD { speed_multiplier: 1.0 },
         Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(12.0, 20.0, 12.0))
                 .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
@@ -37,7 +40,7 @@ fn setup(
         },
     ));
     commands.spawn((
-        Movement { speed: 8.0 },
+        MoveWithWASD { speed_multiplier: 1.0 },
         PbrBundle {
             transform: Transform::from_translation(Vec3::new(0.0, 1.0, 0.0)),
             mesh: meshes.add(Capsule3d {
@@ -51,12 +54,12 @@ fn setup(
 }
 
 #[derive(Component)]
-struct Movement {
-    speed: f32,
+struct MoveWithWASD {
+    speed_multiplier: f32,
 }
 
 fn camera_movement(
-    mut query: Query<(&mut Transform, &Movement)>,
+    mut query: Query<(&mut Transform, &MoveWithWASD)>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
@@ -80,6 +83,6 @@ fn camera_movement(
             direction = direction.normalize();
         }
 
-        transform.translation += direction * movement.speed * time.delta_seconds();
+        transform.translation += direction * 8.0 * movement.speed_multiplier * time.delta_seconds();
     }
 }

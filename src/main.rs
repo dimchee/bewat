@@ -2,14 +2,12 @@
 //!
 //! Acts as background color, since pixels that are not drawn in a frame remain unchanged.
 
-use bevy::{color::palettes::css::PURPLE, prelude::*};
+use bevy::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 0.9)))
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, (setup, load))
-        .add_systems(Update, change_clear_color)
         .add_systems(Update, camera_movement)
         .run();
 }
@@ -27,21 +25,13 @@ fn setup(mut commands: Commands) {
         ..default()
     });
     commands.spawn((
-        Movement {
-            speed: 150.0,
-        },
+        Movement { speed: 150.0 },
         Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(100.0, 150.0, 100.0))
                 .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
             ..default()
-        }
+        },
     ));
-}
-
-fn change_clear_color(input: Res<ButtonInput<KeyCode>>, mut clear_color: ResMut<ClearColor>) {
-    if input.just_pressed(KeyCode::Space) {
-        clear_color.0 = PURPLE.into();
-    }
 }
 
 #[derive(Component)]

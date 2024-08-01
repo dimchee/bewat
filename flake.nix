@@ -35,7 +35,6 @@
     devShell.x86_64-linux = pkgs.mkShell {
       buildInputs = (with pkgs; [
         cargo taplo rust-analyzer rustfmt
-        mold clang
       ]) ++ deps;
       LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath deps}";
       RUST_SRC_PATH="${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";

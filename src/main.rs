@@ -10,6 +10,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, (setup, load))
         .add_systems(Update, change_clear_color)
+        .add_systems(Update, camera_movement)
         .run();
 }
 
@@ -25,15 +26,54 @@ fn setup(mut commands: Commands) {
         transform: Transform::from_translation(Vec3::new(3.0, 4.0, 3.0)),
         ..default()
     });
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_translation(Vec3::new(100.0, 150.0, 100.0))
-            .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Movement {
+            speed: 150.0,
+        },
+        Camera3dBundle {
+            transform: Transform::from_translation(Vec3::new(100.0, 150.0, 100.0))
+                .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
+            ..default()
+        }
+    ));
 }
 
 fn change_clear_color(input: Res<ButtonInput<KeyCode>>, mut clear_color: ResMut<ClearColor>) {
     if input.just_pressed(KeyCode::Space) {
         clear_color.0 = PURPLE.into();
+    }
+}
+
+#[derive(Component)]
+struct Movement {
+    speed: f32,
+}
+
+fn camera_movement(
+    mut query: Query<(&mut Transform, &Movement)>,
+    input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+) {
+    for (mut transform, movement) in query.iter_mut() {
+        let mut direction = Vec3::ZERO;
+
+        if input.pressed(KeyCode::KeyW) {
+            direction.z -= 1.0;
+        }
+        if input.pressed(KeyCode::KeyS) {
+            direction.z += 1.0;
+        }
+        if input.pressed(KeyCode::KeyA) {
+            direction.x -= 1.0;
+        }
+        if input.pressed(KeyCode::KeyD) {
+            direction.x += 1.0;
+        }
+
+        if direction.length_squared() > 0.0 {
+            direction = direction.normalize();
+        }
+
+        transform.translation += direction * movement.speed * time.delta_seconds();
     }
 }

@@ -24,11 +24,21 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Spawn a light and the camera
     commands.spawn((
         Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(12.0, 20.0, 12.0))
                 .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
+            ..default()
+        },
+        Player,
+    ));
+    commands.spawn((
+        SpotLightBundle {
+            spot_light: SpotLight {
+                intensity: 8_000_000.0,
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(0.0, 3.0, 2.0)),
             ..default()
         },
         Player,

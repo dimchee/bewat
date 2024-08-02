@@ -3,6 +3,7 @@ use bevy::prelude::*;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .insert_resource(Movement { speed: 12.0 })
         .add_systems(Startup, (setup, load))
         .add_systems(Update, camera_movement)
         .run();
@@ -15,8 +16,8 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
     },));
 }
 
-#[derive(Bundle)]
-struct PlayerBundle {}
+#[derive(Component)]
+struct Player;
 
 fn setup(
     mut commands: Commands,
@@ -25,22 +26,14 @@ fn setup(
 ) {
     // Spawn a light and the camera
     commands.spawn((
-        MoveWithWASD { speed_multiplier: 1.0 },
-        PointLightBundle {
-            transform: Transform::from_translation(Vec3::new(1.0, 3.0, 1.0)),
-            ..default()
-        },
-    ));
-    commands.spawn((
-        MoveWithWASD { speed_multiplier: 1.0 },
         Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(12.0, 20.0, 12.0))
                 .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
             ..default()
         },
+        Player,
     ));
     commands.spawn((
-        MoveWithWASD { speed_multiplier: 1.0 },
         PbrBundle {
             transform: Transform::from_translation(Vec3::new(0.0, 1.0, 0.0)),
             mesh: meshes.add(Capsule3d {
@@ -50,20 +43,22 @@ fn setup(
             material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
             ..default()
         },
+        Player,
     ));
 }
 
-#[derive(Component)]
-struct MoveWithWASD {
-    speed_multiplier: f32,
+#[derive(Resource)]
+struct Movement {
+    speed: f32,
 }
 
 fn camera_movement(
-    mut query: Query<(&mut Transform, &MoveWithWASD)>,
+    mut query: Query<&mut Transform, With<Player>>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
+    movement: Res<Movement>,
 ) {
-    for (mut transform, movement) in query.iter_mut() {
+    for mut transform in query.iter_mut() {
         let mut direction = Vec3::ZERO;
 
         if input.pressed(KeyCode::KeyW) {
@@ -83,6 +78,6 @@ fn camera_movement(
             direction = direction.normalize();
         }
 
-        transform.translation += direction * 8.0 * movement.speed_multiplier * time.delta_seconds();
+        transform.translation += direction * movement.speed * time.delta_seconds();
     }
 }

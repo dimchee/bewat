@@ -1,11 +1,15 @@
 use bevy::prelude::*;
 
+pub mod shooting;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .insert_resource(Movement { speed: 12.0 })
         .add_systems(Startup, (setup, load))
         .add_systems(Update, camera_movement)
+        .add_systems(Update, shooting::shoot_bullet)
+        .add_systems(Update, shooting::move_bullets)
         .run();
 }
 
@@ -41,6 +45,11 @@ fn setup(
             transform: Transform::from_translation(Vec3::new(0.0, 3.0, 2.0)),
             ..default()
         },
+        Player,
+    ));
+    commands.spawn((
+        Transform::from_translation(Vec3::new(0.0, 1.0, 2.0)),
+        shooting::Gun,
         Player,
     ));
     commands.spawn((
